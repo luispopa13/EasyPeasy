@@ -2,14 +2,14 @@ const OpenAI = require("openai");
 const express = require("express");
 const mongoose = require("mongoose");
 const Query = require("./models/Query");
-require("dotenv").config(); // Load env variables from .env
+require("dotenv").config(); // Load environment variables from .env file
 
 const app = express();
 app.use(express.json());
 
 // ✅ OpenAI API setup
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // No need to include fallback key here for security
+  apiKey: process.env.OPENAI_API_KEY, // Using API key from environment variable
 });
 
 // 🎯 Endpoint to get an explanation
@@ -27,10 +27,10 @@ app.post("/api/submit-query", async (req, res) => {
 
     const explanation = response.choices[0].message.content.trim();
 
-    // Send explanation
+    // Send explanation to client
     res.json({ explanation });
 
-    // Save query
+    // Save query to MongoDB
     const newQuery = new Query({ topic, level, date: new Date() });
     await newQuery.save();
   } catch (error) {
@@ -39,7 +39,7 @@ app.post("/api/submit-query", async (req, res) => {
   }
 });
 
-// ✅ Fetch previous queries
+// ✅ Fetch previous queries from MongoDB
 app.get("/api/queries", async (req, res) => {
   try {
     const queries = await Query.find().sort({ date: -1 });
@@ -50,15 +50,16 @@ app.get("/api/queries", async (req, res) => {
   }
 });
 
-// ✅ Connect to MongoDB using env variable
+// ✅ Connect to MongoDB using connection string from environment variable
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
   console.log("✅ Connected to MongoDB");
 
-  // Start server
-  app.listen(5000, () => console.log("🚀 Server running on http://localhost:5000"));
+  // Start the server, binding to the dynamic port or fallback to 5000 for local development
+  const PORT = process.env.PORT || 5000; // Use the port provided by the environment or default to 5000
+  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
 }).catch(err => {
   console.error("❌ MongoDB connection error:", err);
 });
