@@ -1,7 +1,7 @@
 const { Configuration, OpenAIApi } = require("openai");
 const express = require("express");
 const mongoose = require("mongoose");
-const Query = require("./models/query");
+const Query = require("./models/Query");
 
 const app = express();
 app.use(express.json());
