@@ -13,11 +13,14 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // Using API key from environment variable
 });
 
-// Serve static files from the React app
+// Serve static files from the React app in production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/build")));
+  // Serve static files from React's build folder
+  app.use(express.static(path.join(__dirname, "../client/easypeasy/build")));
+
+  // Any request not handled by API should be handled by React
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+    res.sendFile(path.resolve(__dirname, "../client/easypeasy/build", "index.html"));
   });
 }
 
